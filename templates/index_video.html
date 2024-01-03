@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand Tracking</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+    <h1>Hand Tracking</h1>
+    <img id="video_feed" alt="Video Feed" style="max-width: 100%;" />
+    <p id="palm_status"></p>
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port + '/test');
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+                var video = document.getElementById('video_feed');
+                video.srcObject = stream;
+            })
+            .catch(function (error) {
+                console.error('Error accessing camera:', error);
+            });
+
+
+
+        socket.on('video_frame', function(frame_encoded) {
+            var img = document.getElementById('video_feed');
+            img.src = 'data:image/jpeg;base64,' + frame_encoded;
+        });
+
+        socket.on('palm_status', function(palm_status) {
+            var statusElement = document.getElementById('palm_status');
+            statusElement.innerHTML = palm_status;
+        });
+    </script>
+</body>
+</html>
